@@ -1,22 +1,34 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useMemo } from 'react'
 import * as THREE from 'three'
+import { generateSampleElevationData } from '../utils/sampleElevationData'
 
 function GeorgiaElevation() {
   const meshRef = useRef()
   
-  // This is a placeholder for the actual elevation data
-  // We'll need to replace this with real DEM data
-  const generatePlaceholderGeometry = () => {
-    const geometry = new THREE.PlaneGeometry(10, 10, 100, 100)
-    const vertices = geometry.attributes.position.array
+  const geometry = useMemo(() => {
+    const elevationData = generateSampleElevationData()
+    const { data, width, height, minElevation, maxElevation } = elevationData
     
-    // Create some random elevation for demonstration
-    for (let i = 0; i < vertices.length; i += 3) {
-      vertices[i + 2] = Math.random() * 2
+    // Create a plane geometry with the same dimensions as our data
+    const geo = new THREE.PlaneGeometry(
+      10, // width in world units
+      10, // height in world units
+      width - 1, // segments width
+      height - 1 // segments height
+    )
+    
+    // Update vertices based on elevation data
+    const vertices = geo.attributes.position.array
+    for (let i = 0; i < data.length; i++) {
+      // Update Z coordinate (elevation)
+      vertices[i * 3 + 2] = (data[i] - minElevation) / (maxElevation - minElevation)
     }
     
-    return geometry
-  }
+    // Update normals for proper lighting
+    geo.computeVertexNormals()
+    
+    return geo
+  }, [])
 
   useEffect(() => {
     if (meshRef.current) {
@@ -26,10 +38,11 @@ function GeorgiaElevation() {
 
   return (
     <mesh ref={meshRef} position={[0, 0, 0]}>
-      <primitive object={generatePlaceholderGeometry()} attach="geometry" />
-      <meshStandardMaterial
-        color="#396"
-        wireframe={true}
+      <primitive object={geometry} attach="geometry" />
+      <meshPhongMaterial
+        color="#4a8"
+        shininess={0}
+        flatShading={true}
         side={THREE.DoubleSide}
       />
     </mesh>

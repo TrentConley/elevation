@@ -8,14 +8,21 @@ function App() {
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <Canvas
-        camera={{ position: [0, 5, 5], fov: 75 }}
+        camera={{ position: [0, 4, 6], fov: 60 }}
         style={{ background: '#111' }}
       >
         <Suspense fallback={null}>
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1} />
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[5, 5, 5]} intensity={0.8} />
+          <directionalLight position={[-5, 3, -5]} intensity={0.4} />
           <GeorgiaElevation />
-          <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
+          <OrbitControls 
+            enablePan={true} 
+            enableZoom={true} 
+            enableRotate={true}
+            minDistance={2}
+            maxDistance={20}
+          />
         </Suspense>
       </Canvas>
     </div>
