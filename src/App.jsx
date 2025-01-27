@@ -1,10 +1,30 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
 import './App.css'
 import GeorgiaElevation from './components/GeorgiaElevation'
 
+function LoadingMessage() {
+  return (
+    <div style={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      color: 'white',
+      background: 'rgba(0,0,0,0.7)',
+      padding: '20px',
+      borderRadius: '10px',
+      fontFamily: 'monospace'
+    }}>
+      Loading elevation data...
+    </div>
+  )
+}
+
 function App() {
+  const [isLoading, setIsLoading] = useState(true)
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <Canvas
@@ -15,7 +35,7 @@ function App() {
           <ambientLight intensity={0.5} />
           <directionalLight position={[5, 5, 5]} intensity={1} />
           <directionalLight position={[-5, 3, -5]} intensity={0.3} />
-          <GeorgiaElevation />
+          <GeorgiaElevation onLoadingChange={setIsLoading} />
           <OrbitControls 
             enablePan={true} 
             enableZoom={true} 
@@ -25,6 +45,7 @@ function App() {
           />
         </Suspense>
       </Canvas>
+      {isLoading && <LoadingMessage />}
       <div style={{
         position: 'absolute',
         bottom: '20px',
