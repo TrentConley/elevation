@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+USGS_13_n34w085_20230215.tif
+*.tif
