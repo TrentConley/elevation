@@ -1,6 +1,13 @@
 import { fromArrayBuffer } from 'geotiff';
 
-export const loadElevationData = async (tiffUrl) => {
+const RESOLUTION_LEVELS = {
+  PREVIEW: 400,    // Very low res for initial load
+  LOW: 200,        // Low res for distant viewing
+  MEDIUM: 100,     // Medium res for medium distance
+  HIGH: 50         // High res for close-up viewing
+};
+
+export const loadElevationData = async (tiffUrl, resolution = RESOLUTION_LEVELS.PREVIEW) => {
   try {
     const response = await fetch(tiffUrl);
     const arrayBuffer = await response.arrayBuffer();
@@ -10,22 +17,17 @@ export const loadElevationData = async (tiffUrl) => {
     
     const width = image.getWidth();
     const height = image.getHeight();
-    const elevationData = data[0]; // Get the first band
+    const elevationData = data[0];
     
-    // Increase sampling rate significantly for better performance
-    // Target around 100x100 points for smooth performance
-    const targetSize = 100;
     const samplingRate = Math.max(
-      Math.floor(Math.max(width, height) / targetSize),
-      10 // Ensure we take at least every 10th point
+      Math.floor(Math.max(width, height) / resolution),
+      1
     );
     
-    // Pre-calculate array size for better memory management
     const sampledWidth = Math.floor(width / samplingRate);
     const sampledHeight = Math.floor(height / samplingRate);
     const sampledData = new Float32Array(sampledWidth * sampledHeight);
     
-    // Track min/max while sampling to avoid extra array iterations
     let minElevation = Infinity;
     let maxElevation = -Infinity;
     
@@ -47,10 +49,28 @@ export const loadElevationData = async (tiffUrl) => {
       minElevation,
       maxElevation,
       originalWidth: width,
-      originalHeight: height
+      originalHeight: height,
+      resolution
     };
   } catch (error) {
     console.error('Error loading elevation data:', error);
     throw error;
   }
-}; 
+};
+
+// Cache for storing different resolution levels
+const dataCache = new Map();
+
+export const getElevationData = async (tiffUrl, resolution) => {
+  const cacheKey = `${tiffUrl}-${resolution}`;
+  
+  if (dataCache.has(cacheKey)) {
+    return dataCache.get(cacheKey);
+  }
+  
+  const data = await loadElevationData(tiffUrl, resolution);
+  dataCache.set(cacheKey, data);
+  return data;
+};
+
+export const LEVELS = RESOLUTION_LEVELS; 

@@ -28,7 +28,8 @@ function App() {
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <Canvas
-        camera={{ position: [0, 5, 8], fov: 50 }}
+        // Start camera a bit higher to ensure we begin at lower resolution
+        camera={{ position: [0, 15, 15], fov: 50 }}
         style={{ background: '#111' }}
       >
         <Suspense fallback={null}>
@@ -57,8 +58,11 @@ function App() {
         padding: '10px',
         borderRadius: '5px'
       }}>
-        <div>Green: Lower elevation</div>
-        <div>Brown: Higher elevation</div>
+        <div style={{ marginBottom: '5px' }}><strong>Color Legend</strong></div>
+        <div>Blueish/Greenish: Very low/wet</div>
+        <div>Green: Low to mid elevation</div>
+        <div>Brownish: Higher elevations</div>
+        <div>White-ish: Highest peaks</div>
       </div>
     </div>
   )
